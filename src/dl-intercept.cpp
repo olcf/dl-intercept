@@ -23,7 +23,11 @@ extern "C" unsigned int la_version(unsigned int version) {
 extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int flag) {
   // Catch the first instance of the loader trying to find our libraries
   if(flag == LA_SER_ORIG) {
-
+    // Test if the object being searched for matches any of the keys in our map
+    for(auto const& kv : substitutions) {
+      std::string original_regex = kv.first;
+      std::string substitute = kv.second;
+    }
   }
 
   return (char*)name;
@@ -43,7 +47,7 @@ static void process_environment_variables() {
     boost::split(tokens, dl_string, boost::is_any_of("\t "));
 
     // Split each token on "->" and place into substitutions map
-    for(std::string token : tokens) {
+    for(std::string const& token : tokens) {
       std::vector<std::string> split_token;
       split(split_token, token, boost::is_any_of("->"));
       substitutions[split_token.front()] = split_token.back();
