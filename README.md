@@ -1,1 +1,1 @@
-Intercept `dlopen` calls
+Intercept the RTLD to make library substitutions
