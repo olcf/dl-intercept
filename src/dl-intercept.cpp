@@ -52,6 +52,11 @@ static void process_environment_variables() {
     for(std::string const& token : tokens) {
       std::vector<std::string> split_token;
       boost::split(split_token, token, boost::is_any_of(":"));
+
+      // Remove leading/trailing whitespace
+      boost::trim(split_token.front());
+      boost::trim(split_token.back());
+
       substitutions[split_token.front()] = split_token.back();
     }
   }

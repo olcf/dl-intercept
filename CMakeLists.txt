@@ -12,7 +12,7 @@ endif()
 add_library(dl-intercept SHARED src/dl-intercept.cpp)
 set_target_properties(dl-intercept PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-find_package(Boost COMPONENTS regex REQUIRED)
+find_package(Boost COMPONENTS system REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(dl-intercept ${Boost_LIBRARIES})
 
