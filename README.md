@@ -13,7 +13,7 @@ make install
 ```
 
 ## To use
-If we want to intercept the dynamic loading of *libfoo.so* with /bar/libbar.so we can do the following
+If we want to intercept the dynamic loading of any library entry containing `libfoo.so` with `/bar/libbar.so` we can do the following
 ```
 export DL_INTERCEPT=libfoo.so:/bar/libbar.so
 LD_AUDIT='/install/prefix/libdl-intercept.so' a.out
