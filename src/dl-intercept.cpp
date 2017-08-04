@@ -14,7 +14,7 @@
 
 static std::unordered_map<std::string, std::string> substitutions;
 
-// Required
+// Required by audit interface
 extern "C" unsigned int la_version(unsigned int version) {
     return version;
 }
@@ -27,6 +27,7 @@ extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int 
 
     for(auto const& kv : substitutions) {
       // If a searched name matches a key, return the mapped value
+      // If the key is an absolute filepath the loader will not search anywhere else
       if(obj_name.find(kv.first) != std::string::npos) {
           return (char*)kv.second.c_str();
       }
@@ -48,7 +49,7 @@ static void process_environment_variables() {
     std::vector<std::string> tokens;
     boost::split(tokens, dl_string, boost::is_any_of(","));
 
-    // Split each substitution pair on ":" and place into substitutions map
+    // Split each substitution pair on ":"
     for(std::string const& token : tokens) {
       std::vector<std::string> split_token;
       boost::split(split_token, token, boost::is_any_of(":"));
@@ -57,6 +58,7 @@ static void process_environment_variables() {
       boost::trim(split_token.front());
       boost::trim(split_token.back());
 
+      // Place substitutions into map
       substitutions[split_token.front()] = split_token.back();
     }
   }
