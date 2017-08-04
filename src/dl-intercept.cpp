@@ -21,12 +21,15 @@ extern "C" unsigned int la_version(unsigned int version) {
 
 // Identify requests to find libmpi* and switch out for system specific libraries
 extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int flag) {
-  // Catch the first instance of the loader trying to find our libraries
+  // Catch the first instance of the loader trying to find the library
   if(flag == LA_SER_ORIG) {
-    // Test if the object being searched for matches any of the keys in our map
+    std::string obj_name(name);
+
     for(auto const& kv : substitutions) {
-      std::string original_regex = kv.first;
-      std::string substitute = kv.second;
+      // If a searched name matches a key, return the mapped value
+      if(obj_name.find(kv.first) != std::string::npos) {
+          return (char*)kv.second.c_str();
+      }
     }
   }
 
@@ -35,21 +38,20 @@ extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int 
 
 // Populate std::map with libraries and substitues in following form:
 // DL_INTERCEPT=original->substitute original2->substitute2
-// The original entry is assumed to be a regex expression
-// e.g. DL_INTERCEPT="*libmpi.so*->/opt/cray/blarg/libmpi.so *libmpif.so->/opt/cray/blarg/libmpif.so"
+// e.g. DL_INTERCEPT="libmpi.so:/opt/cray/blarg/libmpi.so,libmpif.so:/opt/cray/blarg/libmpif.so"
 static void process_environment_variables() {
   const char *dl_cstring = std::getenv("DL_INTERCEPT");
 
   if(dl_cstring != NULL) {
-    // Split DL_INTERCEPT on whitespace
+    // Split DL_INTERCEPT on ":"
     std::string dl_string(dl_cstring);
     std::vector<std::string> tokens;
-    boost::split(tokens, dl_string, boost::is_any_of("\t "));
+    boost::split(tokens, dl_string, boost::is_any_of(","));
 
     // Split each token on "->" and place into substitutions map
     for(std::string const& token : tokens) {
       std::vector<std::string> split_token;
-      split(split_token, token, boost::is_any_of("->"));
+      boost::split(split_token, token, boost::is_any_of(":"));
       substitutions[split_token.front()] = split_token.back();
     }
   }
