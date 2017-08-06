@@ -22,4 +22,7 @@ multiple libraries can be intercepted by seperating the replacement pairs with a
 ```
 export DL_INTERCEPT=libfoo.so:/bar/libbar.so, libbaz.so:/raz/libraz.so
 ```
-
+The `LD_LIBRARY_PATH` may also be modified to include the path to dependencies of the substitute library
+```
+DL_INTERCEPT_LD_LIBRARY_PATH=/path/to/libbar/dependency/libs
+```
