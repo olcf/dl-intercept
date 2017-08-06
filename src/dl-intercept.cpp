@@ -74,7 +74,7 @@ static void process_environment_variables() {
     if(ld_library != NULL) {
       new_library.append(":", ld_library);
     }
-    std::setenv("LD_LIBRARY_PATH", new_library);
+    setenv("LD_LIBRARY_PATH", new_library.c_str(), 1);
   }
 
   const char *dl_path = std::getenv("DL_INTERCEPT_PATH");
@@ -86,7 +86,7 @@ static void process_environment_variables() {
     if(ld_path != NULL) {
       new_path.append(":", ld_path);
     }
-    std::setenv("PATH", path);
+    setenv("PATH", new_path.c_str(), 1);
   }
 
 }
