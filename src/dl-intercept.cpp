@@ -46,7 +46,7 @@ static void process_environment_variables() {
   if(dl_cstring != NULL) {
     // Split DL_INTERCEPT substitution pairs on ","
     std::vector<std::string> tokens;
-    boost::split(tokens, std::string(dl_cstring), boost::is_any_of(","));
+    boost::split(tokens, dl_cstring, boost::is_any_of(","));
 
     // Split each substitution pair on ":"
     for(std::string const& token : tokens) {
