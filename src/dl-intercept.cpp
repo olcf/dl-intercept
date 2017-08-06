@@ -37,17 +37,16 @@ extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int 
   return (char*)name;
 }
 
-// Populate std::map with libraries and substitues in following form:
-// DL_INTERCEPT=original:substitute, original2:substitute2
-// e.g. DL_INTERCEPT="libmpi.so:/opt/cray/blarg/libmpi.so, libmpif.so:/opt/cray/blarg/libmpif.so"
 static void process_environment_variables() {
+  // Populate std::map with libraries and substitues in following form:
+  // DL_INTERCEPT=original:substitute, original2:substitute2
+  // e.g. DL_INTERCEPT="libmpi.so:/opt/cray/blarg/libmpi.so, libmpif.so:/opt/cray/blarg/libmpif.so"
   const char *dl_cstring = std::getenv("DL_INTERCEPT");
 
   if(dl_cstring != NULL) {
     // Split DL_INTERCEPT substitution pairs on ","
-    std::string dl_string(dl_cstring);
     std::vector<std::string> tokens;
-    boost::split(tokens, dl_string, boost::is_any_of(","));
+    boost::split(tokens, std::string(dl_cstring), boost::is_any_of(","));
 
     // Split each substitution pair on ":"
     for(std::string const& token : tokens) {
@@ -62,6 +61,34 @@ static void process_environment_variables() {
       substitutions[split_token.front()] = split_token.back();
     }
   }
+
+  // prepend DL_INTERCEPT_LD_LIBRARY_PATH and DL_PATH to LD_LIBRARY_PATH and PATH
+  // This is required as Singularity currently has an issue with docker container env variables
+  // see https://github.com/singularityware/singularity/issues/860
+  const char *dl_library = std::getenv("DL_INTERCEPT_LD_LIBRARY_PATH");
+  if(dl_library != NULL) {
+    std::string new_library(dl_library);
+ 
+    // Append DL_INTERCEPT_LD_LIBRARY_PATH to LD_LIBRARY_PATH
+    const char *ld_library = std::getenv("LD_LIBRARY_PATH");
+    if(ld_library != NULL) {
+      new_library.append(":", ld_library);
+    }
+    std::setenv("LD_LIBRARY_PATH", new_library);
+  }
+
+  const char *dl_path = std::getenv("DL_INTERCEPT_PATH");
+  if(dl_path != NULL) {
+    std::string new_path(dl_path);
+ 
+    // Append DL_INTERCEPT_PATH to PATH
+    const char *ld_path = std::getenv("PATH");
+    if(ld_path != NULL) {
+      new_path.append(":", ld_path);
+    }
+    std::setenv("PATH", path);
+  }
+
 }
 
 __attribute__ ((__constructor__))
