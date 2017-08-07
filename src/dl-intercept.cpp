@@ -72,19 +72,20 @@ static void process_environment_variables() {
     // Append DL_INTERCEPT_LD_LIBRARY_PATH to LD_LIBRARY_PATH
     const char *ld_library = std::getenv("LD_LIBRARY_PATH");
     if(ld_library != NULL) {
-      new_library.append(":", ld_library);
+      new_library += ':';
+      new_library += ld_library;
     }
     setenv("LD_LIBRARY_PATH", new_library.c_str(), 1);
   }
-
   const char *dl_path = std::getenv("DL_INTERCEPT_PATH");
   if(dl_path != NULL) {
     std::string new_path(dl_path);
- 
+
     // Append DL_INTERCEPT_PATH to PATH
-    const char *ld_path = std::getenv("PATH");
-    if(ld_path != NULL) {
-      new_path.append(":", ld_path);
+    const char *path = std::getenv("PATH");
+    if(path != NULL) {
+      new_path += ':';
+      new_path += path;
     }
     setenv("PATH", new_path.c_str(), 1);
   }
