@@ -29,6 +29,7 @@ extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int 
       // If a searched name matches a key, return the mapped value
       // If the key is an absolute filepath the loader will not search anywhere else
       if(obj_name.find(kv.first) != std::string::npos) {
+          const char *blarg = std::getenv("LD_LIBRARY_PATH");
           return (char*)kv.second.c_str();
       }
     }
@@ -61,35 +62,6 @@ static void process_environment_variables() {
       substitutions[split_token.front()] = split_token.back();
     }
   }
-
-  // prepend DL_INTERCEPT_LD_LIBRARY_PATH and DL_PATH to LD_LIBRARY_PATH and PATH
-  // This is required as Singularity currently has an issue with docker container env variables
-  // see https://github.com/singularityware/singularity/issues/860
-  const char *dl_library = std::getenv("DL_INTERCEPT_LD_LIBRARY_PATH");
-  if(dl_library != NULL) {
-    std::string new_library(dl_library);
- 
-    // Append DL_INTERCEPT_LD_LIBRARY_PATH to LD_LIBRARY_PATH
-    const char *ld_library = std::getenv("LD_LIBRARY_PATH");
-    if(ld_library != NULL) {
-      new_library += ':';
-      new_library += ld_library;
-    }
-    setenv("LD_LIBRARY_PATH", new_library.c_str(), 1);
-  }
-  const char *dl_path = std::getenv("DL_INTERCEPT_PATH");
-  if(dl_path != NULL) {
-    std::string new_path(dl_path);
-
-    // Append DL_INTERCEPT_PATH to PATH
-    const char *path = std::getenv("PATH");
-    if(path != NULL) {
-      new_path += ':';
-      new_path += path;
-    }
-    setenv("PATH", new_path.c_str(), 1);
-  }
-
 }
 
 __attribute__ ((__constructor__))
