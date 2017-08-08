@@ -30,7 +30,6 @@ extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int 
       // If a searched name matches a key, return the mapped value
       // If the key is an absolute filepath the loader will not search anywhere else
       if(obj_name.find(kv.first) != std::string::npos) {
-          const char *blarg = std::getenv("LD_LIBRARY_PATH");
           return (char*)kv.second.c_str();
       }
     }
@@ -82,6 +81,9 @@ static void process_environment_variables() {
 
         // Place substitutions into map
         substitutions[split_pair.front()] = split_pair.back();
+      }
+      else {
+        std::cout<<"Formatting error in substitution pair: "<<pair<<std::endl;
       }
     }
   }
