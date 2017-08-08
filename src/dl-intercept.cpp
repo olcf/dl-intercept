@@ -75,12 +75,14 @@ static void process_environment_variables() {
       std::vector<std::string> split_pair;
       boost::split(split_pair, pair, boost::is_any_of(":"));
 
-      // Remove leading/trailing whitespace
-      boost::trim(split_pair.front());
-      boost::trim(split_pair.back());
+      if(split_pair.size() == 2) {
+        // Remove leading/trailing whitespace
+        boost::trim(split_pair.front());
+        boost::trim(split_pair.back());
 
-      // Place substitutions into map
-      substitutions[split_pair.front()] = split_pair.back();
+        // Place substitutions into map
+        substitutions[split_pair.front()] = split_pair.back();
+      }
     }
   }
 }
