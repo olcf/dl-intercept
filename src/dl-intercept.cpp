@@ -41,11 +41,11 @@ extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int 
 
 static void process_environment_variables() {
   // Populate std::map with libraries and substitues in following form:
-  // DL_INTERCEPT=original:substitute, original2:substitute2
-  // e.g. DL_INTERCEPT="libmpi.so:/opt/cray/blarg/libmpi.so, libmpif.so:/opt/cray/blarg/libmpif.so"
+  // RTLD_SUBSTITUTIONS=original:substitute, original2:substitute2
+  // e.g. RTLD_SUBSTITUTIONS="libmpi.so:/opt/cray/blarg/libmpi.so, libmpif.so:/opt/cray/blarg/libmpif.so"
   // -OR-
   // From a file with each library substituion pair on a new line
-  const char *dl_cstring = std::getenv("DL_SUBSTITUTIONS");
+  const char *dl_cstring = std::getenv("RTLD_SUBSTITUTIONS");
 
   std::vector<std::string> substituion_pairs;
 
