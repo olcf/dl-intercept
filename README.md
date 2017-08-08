@@ -15,10 +15,18 @@ make install
 ## To use
 If we want to intercept the dynamic loading of any library entry containing `libfoo.so` with `/bar/libbar.so` we can do the following
 ```
-export DL_INTERCEPT=libfoo.so:/bar/libbar.so
+export RTLD_SUBSTITUTIONS=libfoo.so:/bar/libbar.so
 LD_AUDIT='/install/prefix/libdl-intercept.so' a.out
 ```
 multiple libraries can be intercepted by seperating the replacement pairs with a comma:
 ```
-export DL_INTERCEPT=libfoo.so:/bar/libbar.so, libbaz.so:/raz/libraz.so
+export RTLD_SUBSTITUTIONS=libfoo.so:/bar/libbar.so, libbaz.so:/raz/libraz.so
+```
+alternatively an absolute file path may be passed to `RTLD_SUBSITUTIONS` with one substitution pair per line
+
+```
+export RTLD_SUBSTITUTIONS=/full/path/subs.conf
+cat /full/path/subs.conf
+libfoo.so : /bar/libbar.so
+libbaz.so : /raz/libraz.so
 ```
