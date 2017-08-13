@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include "boost/algorithm/string.hpp"
+#include "boost/filesystem.hpp"
 
 static std::unordered_map<std::string, std::string> substitutions;
 
@@ -22,7 +23,7 @@ extern "C" unsigned int la_version(unsigned int version) {
 
 // Identify requests for any matching substitution key and replace with matching map value
 extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int flag) {
-  // Catch the first instance of the loader trying to find the library
+  // Catch the initial name of the object the loader is looking for
   if(flag == LA_SER_ORIG) {
     std::string obj_name(name);
 
@@ -46,22 +47,31 @@ static void process_environment_variables() {
   // From a file with each library substituion pair on a new line
   const char *dl_cstring = std::getenv("RTLD_SUBSTITUTIONS");
 
-  std::vector<std::string> substituion_pairs;
-
   if(dl_cstring != NULL) {
     std::string dl_substitutions(dl_cstring);
-
     std::vector<std::string> substitution_pairs;
 
     // Extract substitution pairs into vector
-    if(dl_substitutions.find(":") == std::string::npos) {
-      // Read substitution pairs line by line
+    if(boost::filesystem::is_regular_file(dl_substitutions)) {
+      // Read substitution pairs from file line by line
       std::ifstream substitutions_file;
       substitutions_file.open(dl_substitutions, std::ifstream::in);
       std::string line;
+
       while(getline(substitutions_file, line)) {
-        substitution_pairs.push_back(line);
+        // remove all white spaces
+        boost::erase_all(line, " ");
+
+        // Ignore line starting with '#' to allow comments
+        // And only add strings which contain a ":"
+        if(line.at(0) == '#' || line.find(':') != std::string::npos) {
+          continue;
+        }
+        else {
+          substitution_pairs.push_back(line);
+        }
       }
+
       substitutions_file.close();
     }
     else {
@@ -75,9 +85,8 @@ static void process_environment_variables() {
       boost::split(split_pair, pair, boost::is_any_of(":"));
 
       if(split_pair.size() == 2) {
-        // Remove leading/trailing whitespace
-        boost::trim(split_pair.front());
-        boost::trim(split_pair.back());
+        split_pair.front();
+        split_pair.back();
 
         // Place substitutions into map
         substitutions[split_pair.front()] = split_pair.back();
