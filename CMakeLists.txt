@@ -16,6 +16,8 @@ endif()
 # Shared split library
 add_library(dl-intercept SHARED src/dl-intercept.cpp)
 set_target_properties(dl-intercept PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+# Static libraries required as container may not have them
+target_link_libraries(dl-intercept -static-libgcc -static-libstdc++)
 
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
