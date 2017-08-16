@@ -12,7 +12,6 @@
 #include <iostream>
 #include <fstream>
 #include "boost/algorithm/string.hpp"
-#include "boost/filesystem.hpp"
 
 static std::unordered_map<std::string, std::string> substitutions;
 
@@ -52,10 +51,15 @@ static void process_environment_variables() {
     std::vector<std::string> substitution_pairs;
 
     // Extract substitution pairs into vector
-    if(boost::filesystem::is_regular_file(dl_substitutions)) {
+    if(dl_substitutions.find(':') == std::string::npos) { // If a filename was provided or malformed pair
       // Read substitution pairs from file line by line
       std::ifstream substitutions_file;
       substitutions_file.open(dl_substitutions, std::ifstream::in);
+      if(substitutions_file.bad()) {
+        std::cout<<"ERROR: Failure to open substitutions file " << dl_substitutions << std::endl;
+        exit(1);
+      }
+
       std::string line;
 
       while(getline(substitutions_file, line)) {
@@ -64,7 +68,7 @@ static void process_environment_variables() {
 
         // Ignore line starting with '#' to allow comments
         // And only add strings which contain a ":"
-        if(line.at(0) == '#' || line.find(':') != std::string::npos) {
+        if(line.at(0) == '#' || line.find(':') == std::string::npos) {
           continue;
         }
         else {
