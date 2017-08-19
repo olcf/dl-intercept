@@ -7,7 +7,7 @@ module load boost
 module load cmake3
 
 mkdir build && cd build
-cmake -DCMAKE_INSTALL_PREFIX=/foo/bar -DCMAKE_BUILD_TYPE=RELEASE cmake ..
+cmake -DCMAKE_INSTALL_PREFIX=/foo/bar -DCMAKE_BUILD_TYPE=RELEASE ..
 make
 make install
 ```
