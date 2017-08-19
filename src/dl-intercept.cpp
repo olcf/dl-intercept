@@ -11,9 +11,13 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "boost/algorithm/string.hpp"
 
+static void process_environment_variables();
+
 static std::unordered_map<std::string, std::string> substitutions;
+static bool initialized = false;
 
 // Required by audit interface
 extern "C" unsigned int la_version(unsigned int version) {
@@ -24,6 +28,12 @@ extern "C" unsigned int la_version(unsigned int version) {
 extern "C" char *la_objsearch(const char *name, uintptr_t *cookie, unsigned int flag) {
   // Catch the initial name of the object the loader is looking for
   if(flag == LA_SER_ORIG) {
+    // Initialize environment variables
+    if(!initialized) {
+      process_environment_variables();
+      initialized = true;
+    }
+
     std::string obj_name(name);
 
     for(auto const& kv : substitutions) {
@@ -100,9 +110,4 @@ static void process_environment_variables() {
       }
     }
   }
-}
-
-__attribute__ ((__constructor__))
-void DLI_init() {
-  process_environment_variables();
 }
