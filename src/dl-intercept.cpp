@@ -78,7 +78,7 @@ static void process_environment_variables() {
 
         // Ignore line starting with '#' to allow comments
         // And only add strings which contain a ":"
-        if(line.at(0) == '#' || line.find(':') == std::string::npos) {
+        if(line.size() <= 3 || line.at(0) == '#' || line.find(':') == std::string::npos) {
           continue;
         }
         else {
